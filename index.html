@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d9488">
+  <meta name="msapplication-TileColor" content="#0d9488">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ethmar Storage">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Ethmar Storage">
+  <meta name="description" content="إدارة مواقع التخزين — عرض وتعديل وإضافة. يعمل بدون إنترنت.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+  <title>Ethmar Storage Location</title>
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-dark: #0f766e;
+      --primary-light: #14b8a6;
+      --bg: #f0fdfa;
+      --card: #ffffff;
+      --border: #99f6e4;
+      --text: #134e4a;
+      --muted: #64748b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --info: #0284c7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(145deg, #ccfbf1 0%, #f0fdfa 40%, #e0f2fe 100%);
+      min-height: 100vh;
+      color: var(--text);
+      padding: 18px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .logo {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 10px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #0d9488, #0f766e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo svg {
+      width: 44px;
+      height: 44px;
+    }
+
+    .logo::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .install-banner {
+      display: none;
+      background: #ecfdf5;
+      border: 2px solid #99f6e4;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .install-banner.show {
+      display: flex;
+    }
+
+    .install-banner p {
+      font-size: 1rem;
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      background: var(--card);
+      padding: 6px;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(13, 148, 136, 0.1);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 11px 14px;
+      border: none;
+      background: transparent;
+      border-radius: 10px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 3px 10px rgba(13, 148, 136, 0.3);
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: #f0fdfa;
+      color: var(--primary-dark);
+    }
+
+    .tab-content {
+      display: none;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 6px 24px rgba(13, 148, 136, 0.12);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Toolbar فوق الجدول */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+      justify-content: space-between;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box input {
+      width: 100%;
+      min-width: 180px;
+      max-width: 280px;
+      padding: 10px 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      direction: ltr;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.02rem;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      background: linear-gradient(90deg, #0d9488, #14b8a6);
+      color: white;
+      font-weight: 700;
+      font-size: 1.05rem;
+      position: sticky;
+      top: 0;
+      letter-spacing: 0.3px;
+    }
+
+    tr:nth-child(even) {
+      background: #f0fdfa;
+    }
+
+    tr:hover {
+      background: #ccfbf1;
+    }
+
+    td strong {
+      font-size: 1.08rem;
+      letter-spacing: 0.5px;
+    }
+
+    .pivot-cell {
+      font-family: 'Segoe UI', monospace;
+      font-weight: 600;
+      color: var(--primary-dark);
+      direction: ltr;
+      letter-spacing: 1px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      color: #94a3b8;
+      font-size: 1.05rem;
+    }
+
+    .form-section {
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .form-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .form-section h3 {
+      margin-bottom: 12px;
+      color: var(--primary-dark);
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      transition: border-color 0.2s;
+      direction: ltr;
+      text-align: center;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    textarea {
+      min-height: 90px;
+      text-align: left;
+      font-family: monospace;
+      font-size: 0.9rem;
+      resize: vertical;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--danger);
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+
+    .btn-edit {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+
+    .btn-edit:hover {
+      background: #bae6fd;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-info {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .btn-info:hover {
+      background: #bae6fd;
+    }
+
+    .btn-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .btn-success:hover {
+      background: #a7f3d0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .msg {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      display: none;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .msg.success {
+      background: #d1fae5;
+      color: #065f46;
+      display: block;
+    }
+
+    .msg.error {
+      background: #fee2e2;
+      color: #991b1b;
+      display: block;
+    }
+
+    .count-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-size: 0.88rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+
+    .edit-row {
+      background: #fef3c7 !important;
+    }
+
+    /* قسم الاستيراد/التصدير */
+    .io-panel {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 8px;
+    }
+
+    .io-panel p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .io-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #94a3b8;
+      font-size: 0.88rem;
+    }
+
+    /* تنبيه صغير */
+    .hint {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 600px) {
+      body { font-size: 15px; padding: 12px; }
+      header h1 { font-size: 1.45rem; }
+      .logo { width: 64px; height: 64px; border-radius: 14px; }
+      .logo svg { width: 40px; height: 40px; }
+      .form-row { flex-direction: column; }
+      th, td { padding: 10px 8px; font-size: 0.95rem; }
+      .tab-btn { font-size: 0.95rem; padding: 10px; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .search-box input { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo" title="Ethmar Storage">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="18" width="44" height="34" rx="4" fill="white" opacity="0.95"/>
+          <path d="M10 26h44" stroke="#0d9488" stroke-width="2.5"/>
+          <path d="M32 18v42" stroke="#0d9488" stroke-width="2"/>
+          <path d="M22 34h12M22 34v12h12M22 40h9" stroke="#0f766e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="20" y="12" width="24" height="8" rx="2" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <h1>Ethmar Storage Location</h1>
+      <p>إدارة مواقع التخزين — عرض وتعديل وإضافة</p>
+    </header>
+
+    <div id="installBanner" class="install-banner">
+      <p>ثبّت التطبيق على جهازك للاستخدام بدون إنترنت</p>
+      <button class="btn btn-primary" id="installBtn" style="padding:9px 16px;font-size:0.95rem;">تثبيت</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('view')">عرض البيانات</button>
+      <button class="tab-btn" onclick="switchTab('edit')">تعديل وإضافة</button>
+    </div>
+
+    <!-- تبويب العرض -->
+    <div id="view-tab" class="tab-content active">
+      <div class="toolbar">
+        <div class="toolbar-left search-box">
+          <input type="text" id="searchInput" placeholder="بحث بـ R# أو Pivot..." oninput="renderViewTable()">
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-info" onclick="copyData()" title="نسخ كل البيانات">📋 نسخ البيانات</button>
+        </div>
+      </div>
+      <div id="viewTableContainer"></div>
+    </div>
+
+    <!-- تبويب التعديل -->
+    <div id="edit-tab" class="tab-content">
+      <div id="msgBox" class="msg"></div>
+
+      <div class="form-section">
+        <h3 id="formTitle">إضافة صف جديد</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pivotNo">Pivot no.</label>
+            <input type="text" id="pivotNo" placeholder="مثال: 19 CD أو 12" maxlength="12" dir="ltr">
+            <div class="hint">أرقام + حروف (مثل 19 CD)</div>
+          </div>
+          <div class="form-group">
+            <label for="rNumber">R#</label>
+            <input type="text" id="rNumber" placeholder="مثال: R158" dir="ltr">
+          </div>
+          <div class="form-group" style="flex: 0 0 auto;">
+            <button class="btn btn-primary" onclick="saveRow()" id="saveBtn">إضافة</button>
+            <button class="btn btn-secondary" style="display:none;margin-right:6px;" id="cancelBtn" onclick="cancelEdit()">إلغاء</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>البيانات الحالية <span class="count-badge" id="countBadge">0</span></h3>
+        <div id="editTableContainer"></div>
+      </div>
+
+      <!-- قسم النسخ واللصق -->
+      <div class="form-section">
+        <h3>📤 نسخ / استيراد البيانات</h3>
+        <div class="io-panel">
+          <p>انسخ البيانات لإرسالها، أو الصق بيانات مستلمة لاستعادتها.</p>
+          <div class="io-actions">
+            <button class="btn btn-info" onclick="copyData()">📋 نسخ الكل</button>
+            <button class="btn btn-success" onclick="pasteData()">📥 لصق واستيراد</button>
+            <button class="btn btn-secondary" onclick="togglePasteArea()">إظهار/إخفاء مربع اللصق</button>
+          </div>
+          <div id="pasteArea" style="display:none;">
+            <textarea id="pasteInput" placeholder='الصق هنا البيانات (JSON) ثم اضغط "لصق واستيراد"'></textarea>
+            <div style="margin-top:8px;">
+              <button class="btn btn-primary" onclick="importFromTextarea()">استيراد من المربع</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      البيانات محفوظة محلياً • يعمل بدون إنترنت بعد التثبيت
+    </footer>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ethmar_storage_data_v2';
+
+    // البيانات الأولية
+    const initialData = [
+      { r: 'R143', pivot: '12' },
+      { r: 'R144', pivot: '16' },
+      { r: 'R145', pivot: '28' },
+      { r: 'R147', pivot: '17' },
+      { r: 'R146', pivot: '15' },
+      { r: 'R148', pivot: '6' },
+      { r: 'R149', pivot: '5' },
+      { r: 'R150', pivot: '8' },
+      { r: 'R152', pivot: '20' },
+      { r: 'R153', pivot: '22' },
+      { r: 'R151', pivot: '3' },
+      { r: 'R154', pivot: '1' },
+      { r: 'R155', pivot: '31' },
+      { r: 'R156', pivot: '23' },
+      { r: 'R157', pivot: '10' },
+      { r: '', pivot: '13' }
+    ];
+
+    let data = [];
+    let editIndex = -1;
+    let deferredPrompt = null;
+
+    function normalizePivot(val) {
+      // تنظيف المسافات الزائدة مع الحفاظ على الشكل مثل "19 CD"
+      return String(val || '').trim().replace(/\s+/g, ' ').toUpperCase();
+    }
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          data = JSON.parse(saved);
+          // تأكد أن pivot نص
+          data = data.map(row => ({
+            r: row.r || '',
+            pivot: normalizePivot(row.pivot)
+          }));
+        } else {
+          // محاولة الترحيل من النسخة القديمة
+          const old = localStorage.getItem('ethmar_storage_data_v1');
+          if (old) {
+            const oldData = JSON.parse(old);
+            data = oldData.map(row => ({
+              r: row.r || '',
+              pivot: normalizePivot(row.pivot)
+            }));
+            saveToStorage();
+          } else {
+            data = [...initialData];
+            saveToStorage();
+          }
+        }
+      } catch (e) {
+        data = [...initialData];
+      }
+    }
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      if (tab === 'view') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('view-tab').classList.add('active');
+        renderViewTable();
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('edit-tab').classList.add('active');
+        renderEditTable();
+      }
+    }
+
+    function showMsg(text, type = 'success') {
+      const box = document.getElementById('msgBox');
+      box.textContent = text;
+      box.className = 'msg ' + type;
+      setTimeout(() => {
+        box.className = 'msg';
+        box.textContent = '';
+      }, 3200);
+    }
+
+    function renderViewTable() {
+      const container = document.getElementById('viewTableContainer');
+      const query = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+
+      let filtered = data;
+      if (query) {
+        filtered = data.filter(row =>
+          (row.r || '').toLowerCase().includes(query) ||
+          String(row.pivot).toLowerCase().includes(query)
+        );
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state">لا توجد بيانات مطابقة</div>';
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Pivot no.</th>
+              <th>R#</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      filtered.forEach((row) => {
+        html += `
+          <tr>
+            <td class="pivot-cell">${row.pivot || '—'}</td>
+            <td><strong>${row.r || '—'}</strong></td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function renderEditTable() {
+      const container = document.getElementById('editTableContainer');
+      document.getElementById('countBadge').textContent = data.length;
+
+      if (data.length === 0) {
+        container.innerHTML = '<div class="empty-state">لا توجد بيانات بعد — أضف صفاً جديداً أعلاه</div>';
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Pivot no.</th>
+              <th>R#</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.forEach((row, i) => {
+        const isEditing = editIndex === i;
+        html += `
+          <tr class="${isEditing ? 'edit-row' : ''}">
+            <td class="pivot-cell">${row.pivot || '—'}</td>
+            <td><strong>${row.r || '—'}</strong></td>
+            <td>
+              <div class="actions">
+                <button class="btn btn-edit" onclick="startEdit(${i})">تعديل</button>
+                <button class="btn btn-danger" onclick="deleteRow(${i})">حذف</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function startEdit(index) {
+      editIndex = index;
+      const row = data[index];
+      document.getElementById('rNumber').value = row.r || '';
+      document.getElementById('pivotNo').value = row.pivot || '';
+      document.getElementById('formTitle').textContent = 'تعديل الصف';
+      document.getElementById('saveBtn').textContent = 'حفظ التعديل';
+      document.getElementById('cancelBtn').style.display = 'inline-block';
+      renderEditTable();
+      document.getElementById('pivotNo').focus();
+    }
+
+    function cancelEdit() {
+      editIndex = -1;
+      document.getElementById('rNumber').value = '';
+      document.getElementById('pivotNo').value = '';
+      document.getElementById('formTitle').textContent = 'إضافة صف جديد';
+      document.getElementById('saveBtn').textContent = 'إضافة';
+      document.getElementById('cancelBtn').style.display = 'none';
+      renderEditTable();
+    }
+
+    function saveRow() {
+      const r = document.getElementById('rNumber').value.trim();
+      const pivotRaw = document.getElementById('pivotNo').value;
+      const pivot = normalizePivot(pivotRaw);
+
+      if (!pivot) {
+        showMsg('من فضلك أدخل قيمة Pivot (أرقام أو أرقام+حروف مثل 19 CD)', 'error');
+        return;
+      }
+
+      // تحقق بسيط: يسمح بأرقام وحروف ومسافة
+      if (!/^[A-Z0-9\s]+$/i.test(pivot)) {
+        showMsg('Pivot يقبل أرقاماً وحروفاً ومسافة فقط', 'error');
+        return;
+      }
+
+      if (editIndex >= 0) {
+        data[editIndex] = { r, pivot };
+        showMsg('تم حفظ التعديل بنجاح');
+      } else {
+        data.push({ r, pivot });
+        showMsg('تمت الإضافة بنجاح');
+      }
+
+      saveToStorage();
+      cancelEdit();
+      renderEditTable();
+    }
+
+    function deleteRow(index) {
+      if (!confirm('هل أنت متأكد من حذف هذا الصف؟')) return;
+      data.splice(index, 1);
+      if (editIndex === index) cancelEdit();
+      else if (editIndex > index) editIndex--;
+      saveToStorage();
+      showMsg('تم الحذف');
+      renderEditTable();
+    }
+
+    // ===== نسخ ولصق =====
+    async function copyData() {
+      const json = JSON.stringify(data, null, 2);
+      try {
+        await navigator.clipboard.writeText(json);
+        showMsg('تم نسخ البيانات إلى الحافظة ✓');
+        // إذا كنا في تبويب العرض، نعرض رسالة بسيطة
+        if (document.getElementById('view-tab').classList.contains('active')) {
+          alert('تم نسخ البيانات بنجاح! يمكنك لصقها في أي مكان.');
+        }
+      } catch (e) {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = json;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showMsg('تم نسخ البيانات ✓');
+        alert('تم نسخ البيانات بنجاح!');
+      }
+    }
+
+    async function pasteData() {
+      try {
+        const text = await navigator.clipboard.readText();
+        importJSON(text);
+      } catch (e) {
+        // إذا فشل قراءة الحافظة، نفتح مربع اللصق
+        document.getElementById('pasteArea').style.display = 'block';
+        showMsg('الصق البيانات يدوياً في المربع ثم اضغط استيراد', 'error');
+      }
+    }
+
+    function togglePasteArea() {
+      const area = document.getElementById('pasteArea');
+      area.style.display = area.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function importFromTextarea() {
+      const text = document.getElementById('pasteInput').value.trim();
+      if (!text) {
+        showMsg('المربع فارغ', 'error');
+        return;
+      }
+      importJSON(text);
+    }
+
+    function importJSON(text) {
+      try {
+        let parsed = JSON.parse(text);
+
+        // دعم شكل مصفوفة أو كائن يحتوي على data
+        if (!Array.isArray(parsed)) {
+          if (parsed.data && Array.isArray(parsed.data)) {
+            parsed = parsed.data;
+          } else {
+            throw new Error('البيانات ليست مصفوفة');
+          }
+        }
+
+        // تنظيف وتحويل
+        const cleaned = parsed.map(row => ({
+          r: (row.r || row.R || row['R#'] || '').toString().trim(),
+          pivot: normalizePivot(row.pivot || row.Pivot || row['Pivot no.'] || row.pivotNo || '')
+        })).filter(row => row.pivot); // نتجاهل الصفوف بدون pivot
+
+        if (cleaned.length === 0) {
+          showMsg('لم يتم العثور على بيانات صالحة', 'error');
+          return;
+        }
+
+        if (!confirm(`هل تريد استبدال البيانات الحالية بـ ${cleaned.length} صف؟`)) return;
+
+        data = cleaned;
+        saveToStorage();
+        cancelEdit();
+        renderEditTable();
+        renderViewTable();
+        document.getElementById('pasteInput').value = '';
+        document.getElementById('pasteArea').style.display = 'none';
+        showMsg(`تم استيراد ${cleaned.length} صف بنجاح`);
+      } catch (e) {
+        showMsg('خطأ في تنسيق البيانات. تأكد أنها JSON صحيح', 'error');
+        console.error(e);
+      }
+    }
+
+    // PWA: Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('SW registered', reg.scope))
+          .catch(err => console.log('SW failed', err));
+      });
+    }
+
+    // PWA: Install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBanner').classList.add('show');
+    });
+
+    document.getElementById('installBtn')?.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        document.getElementById('installBanner').classList.remove('show');
+      }
+      deferredPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      document.getElementById('installBanner').classList.remove('show');
+      deferredPrompt = null;
+    });
+
+    // تهيئة
+    loadData();
+    renderViewTable();
+    renderEditTable();
+  </script>
+</body>
+</html>
